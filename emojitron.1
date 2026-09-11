@@ -1,0 +1,179 @@
+.\" Manual page for emojitron
+.Dd September 7, 2026
+.Dt EMOJITRON 1
+.Os
+.Sh NAME
+.Nm emojitron
+.Nd print random emoji, or emoji from a standard group
+.Sh SYNOPSIS
+.Nm
+.Op Fl nu
+.Op Fl g Ar group
+.Op Fl s Ar separator
+.Op Fl t Ar tone
+.Op Fl -seed Ar seed
+.Op Ar count
+.Nm
+.Fl l
+.Nm
+.Op Fl hV
+.Sh DESCRIPTION
+.Nm
+writes emoji to standard output.
+With no options it prints a single emoji drawn uniformly at random from the
+whole Unicode emoji set.
+Randomness comes from the operating system's cryptographically secure random
+number generator, so the output is not predictable or reproducible unless
+.Fl -seed
+is given.
+.Pp
+The optional
+.Ar count
+argument says how many emoji to print; it defaults to 1.
+A count of 0 prints nothing and warns on standard error.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl g , Fl -group Ar group
+Draw only from the named emoji group.
+See
+.Sx GROUPS .
+An unrecognized name is an error, and
+.Nm
+suggests the closest match.
+.It Fl l , Fl -list-groups
+List the group names, the number of emoji in each, and the corresponding CLDR
+group, then exit.
+This option may not be combined with any other.
+.It Fl n , Fl -names
+Print the CLDR name and the
+.Ql :shortcode:\&
+after each emoji.
+Emoji without a shortcode show
+.Ql :-:\& .
+Implies a newline separator unless
+.Fl s
+is given.
+.It Fl s , Fl -separator Ar separator
+Print
+.Ar separator
+between emoji instead of the default, which is a single space, or a newline
+when
+.Fl n
+is in effect.
+A trailing newline is always written after the last emoji.
+.It Fl -seed Ar seed
+Seed the generator with the unsigned 64-bit integer
+.Ar seed .
+The same seed, count, group and options produce the same emoji every run,
+which is useful for tests and for reproducible output in scripts.
+Seeded output is
+.Em not
+unpredictable: anyone who knows the seed knows the output.
+The sequence is stable within a release, but a future version of
+.Nm
+or of its emoji tables may reorder the pool and change what a given seed
+produces.
+.It Fl t , Fl -skin-tone Ar tone
+Apply
+.Ar tone
+to every printed emoji that supports a skin tone modifier.
+Accepted tones are the five Fitzpatrick modifiers
+.Cm light , medium-light , medium , medium-dark
+and
+.Cm dark ,
+plus
+.Cm default
+for the unmodified yellow form.
+Emoji with no skin tone, and multi-person sequences that take one tone per
+person, are printed unchanged; if that is true of every emoji printed,
+.Nm
+says so on standard error.
+.It Fl u , Fl -unique
+Never print the same emoji twice.
+If
+.Ar count
+exceeds the number of emoji available in the pool,
+.Nm
+warns on standard error and prints the whole pool instead.
+.It Fl h , Fl -help
+Print a help summary
+.Pq Fl h
+or the full help text
+.Pq Fl -help
+and exit.
+.It Fl V , Fl -version
+Print the version and exit.
+.El
+.Sh GROUPS
+The group names correspond to the standard Unicode CLDR emoji groups defined by
+Unicode Technical Standard #51.
+Each name also accepts its full hyphenated CLDR spelling, shown in parentheses.
+.Pp
+.Bl -tag -width "activities" -compact
+.It Cm smileys
+Smileys & Emotion
+.Pq Cm smileys-and-emotion
+.It Cm people
+People & Body
+.Pq Cm people-and-body
+.It Cm animals
+Animals & Nature
+.Pq Cm animals-and-nature
+.It Cm food
+Food & Drink
+.Pq Cm food-and-drink
+.It Cm travel
+Travel & Places
+.Pq Cm travel-and-places
+.It Cm activities
+Activities
+.It Cm objects
+Objects
+.It Cm symbols
+Symbols
+.It Cm flags
+Flags
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Nm
+exits 2 when the command line cannot be parsed.
+A warning about a clamped or zero count is not an error.
+.Sh EXAMPLES
+Print one random emoji:
+.Pp
+.Dl $ emojitron
+.Pp
+Print ten random emoji separated by spaces:
+.Pp
+.Dl $ emojitron 10
+.Pp
+Print five distinct food emoji with no separator:
+.Pp
+.Dl $ emojitron -g food -u -s '' 5
+.Pp
+Print four emoji with a medium-dark skin tone:
+.Pp
+.Dl $ emojitron -t medium-dark 4
+.Pp
+Print the same five emoji every time:
+.Pp
+.Dl $ emojitron --seed 42 5
+.Pp
+List three animals with their names and shortcodes:
+.Pp
+.Dl $ emojitron -n -g animals 3
+.Pp
+Show which groups exist and how large they are:
+.Pp
+.Dl $ emojitron --list-groups
+.Sh SEE ALSO
+.Lk https://www.unicode.org/reports/tr51/ "Unicode Technical Standard #51, Unicode Emoji"
+.Sh AUTHORS
+.An Brian Shumate
+.Sh CAVEATS
+Rendering depends entirely on the terminal and its fonts.
+Emoji built from ZWJ sequences, flags, and recent additions may appear as
+several glyphs, as a box, or misaligned in columns even though the bytes
+written are correct.

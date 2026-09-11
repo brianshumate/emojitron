@@ -1,0 +1,12 @@
+[package]
+name = "emojitron"
+version = "0.1.0"
+edition = "2024"
+description = "Print N emoji, chosen randomly or from a standard emoji group"
+license = "MIT"
+include = ["src/**", "emojitron.1", "Cargo.toml"]
+
+[dependencies]
+clap = { version = "4.6.6", features = ["derive"] }
+emojis = "0.9.0"
+rand = "0.10.2"
